@@ -1,0 +1,49 @@
+.\" Create an issue at <https://github.com/sfeuga/mkgitignore/issues> to correct errors or typos.
+.TH mkGitignore "1" "24 Jul 2019" "mkGitignore 0.0.1" "mkGitignore Manual"
+.SH NAME
+mkGitignore \- easy create a .gitignore
+.SH SYNOPSIS
+mkgitignore [<args>]
+.SH DESCRIPTION
+mkGitignore \- Easy create a .gitignore in the current directory.
+This project is not a part of \fIgitignore.io\fR
+.SH ARGS
+.TP
+\fB\-k\fR, \fB\-\-keywords\fR
+one or more keyword from <https://www.gitignore.io>. Use the <tab> completion for an easy matching
+.TP
+\fB\-d\fR, \fB\-\-default\fR
+create a default .gitignore
+.TP
+\fB\-D\fR, \fB\-\-display\-default\fR
+display default value
+.TP
+\fB\-\-help\fR
+display this help and exit
+.TP
+\fB\-\-list\fR
+display a full list of valid keywords
+.TP
+\fB\-\-version\fR
+output version information and exit
+.SH FILES
+.I ~/.mkgitignorerc
+.RS
+Default config file, see ENVIRONMENT
+.SH ENVIRONMENT
+The environment variables can be specified in lower case or upper case.
+
+.IP GITIGNORE_KEYWORDS='[keywords]'
+Default values are: 'linux,macos,windows,vim,emacs,sublimetext,git'
+.SH EXIT CODES
+There are different error codes and their corresponding error messages that may appear during bad conditions. At the time of this writing, the exit codes are:
+.IP 1
+Wrong number of arguments
+.IP 2
+One or more error arguments are not valid
+.SH BUGS
+Create an issue on the GitHub project page <https://github.com/sfeuga/mkgitignore/issues>
+.SH WWW
+<https://github.com/sfeuga/mkgitignore>
+.SH AUTHOR
+Stephane FEUGA OSHIMA <sfeuga@member.fsf.org>
