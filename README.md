@@ -32,6 +32,8 @@ Run `mkgitignore --display-default` to see which default values are set and see 
 
 ## Reporting bugs
 
+Tested on `Fedora` with `GNU/Bash 5.0.7(1)` and `Zsh 5.7.1`
+
 Please use the GitHub issue tracker for any bugs or feature suggestions:
 
 <https://github.com/sfeuga/mkgitignore/issues>
@@ -42,6 +44,9 @@ Please use the GitHub issue tracker for any bugs or feature suggestions:
 - [ ] Add an option to create a `.mkgitignorerc`. Ex: `mkgitignore -E -k vim,ruby,linux` will run `echo "keywords='vim,ruby,linux'" > ~/.mkgitignorerc`
 
 ## Contributing
+
+If you use it under other _OS_ or _shell_ version, please let me know and I will update this `README.md` or even better,
+Update the `README.md` by yourself.
 
 Please submit patches to code or documentation as GitHub pull requests!
 
