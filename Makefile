@@ -19,8 +19,8 @@ install:
 	gzip -c mkgitignore.1 > mkgitignore.1.gz
 	groff -t -mandoc -Tascii mkgitignore.1 > MANUAL
 	install -m755 mkgitignore $(BINDIR)/mkgitignore
-	install -m644 mkgitignore.bash $(BASHCOMDIR)
-	install -m644 _mkgitignore.zsh $(ZSHCOMPDIR)/_mkgitignore
+	install -m644 mkgitignore.bash $(BASHCOMDIR)/mkgitignore
+	install -m644 mkgitignore.zsh $(ZSHCOMPDIR)/_mkgitignore
 	install -m644 mkgitignore.1.gz $(MANDIR)
 	install -m644 README.md $(DOCDIR)
 	install -m644 MANUAL $(DOCDIR)
@@ -28,7 +28,7 @@ install:
 
 uninstall:
 	rm -f $(BINDIR)/mkgitignore
-	rm -f $(BASHCOMDIR)/mkgitignore.bash
+	rm -f $(BASHCOMDIR)/mkgitignore
 	rm -f $(ZSHCOMPDIR)/_mkgitignore
 	rm -f $(MANDIR)/mkgitignore.1.gz
 	rm -rf $(DOCDIR)

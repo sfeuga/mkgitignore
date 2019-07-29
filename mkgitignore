@@ -18,24 +18,38 @@
 #
 # Written by Stephane FEUGA OSHIMA <sfeuga@member.fsf.org>
 
-VERSION="0.0.2"
+URL="https://github.com/sfeuga/mkgitignore"
+API="https://www.gitignore.io/api"
 
-COPYRIGHT="Copyright (C) 2019 Stephane FEUGA OSHIMA.
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
+VERSION="0.0.3"
 
-Written by Stephane FEUGA OSHIMA <sfeuga@member.fsf.org>."
-
-function existing_gitignore() {
+function check_errors() {
   if [[ -f .gitignore ]]; then
-    mv .gitignore .gitignore.bak
+    if [[ "$(grep '#!! ERROR' -c .gitignore)" -ne "0" ]]; then
+      if [[ -f .gitignore.bak ]]; then
+        check_errors_msg
+        mv .gitignore.bak .gitignore
+        exit 2
+      else
+        check_errors_msg
+        rm .gitignore
+        exit 2
+      fi
+    else
+      exit 0
+    fi
   fi
 }
 
 function check_errors_msg() {
   grep --color=never '#!! ERROR' .gitignore
   echo -e "Run \"mkgitignore --list\" command or use the <tab> completion to get a valid list of arguments."
+}
+
+function existing_gitignore() {
+  if [[ -f .gitignore ]]; then
+    mv .gitignore .gitignore.bak
+  fi
 }
 
 function initial_setup() {
@@ -56,6 +70,36 @@ function initial_setup() {
   if [[ -z "$KEYWORDS" ]]; then
     KEYWORDS='linux,macos,windows,vim,emacs,sublimetext,git'
   fi
+  TARGET_RELEASE=''
+}
+
+function no_update_available() {
+  echo -e "No update available. Please check later."
+  exit 0
+}
+
+function upgrade() {
+  if [[ -z "$TARGET_RELEASE" ]]; then
+    exit 3
+  else
+    (
+      cd /tmp || cd ~ && \
+        tgz_url="https://codeload.github.com/sfeuga/mkgitignore/tar.gz"
+        curl -s $tgz_url/"$TARGET_RELEASE" --output "$TARGET_RELEASE.tar.gz"
+        tar -axf "$TARGET_RELEASE.tar.gz" && rm "$TARGET_RELEASE.tar.gz"
+        cd "mkgitignore-$TARGET_RELEASE" || exit 3
+        echo -e "You will need to type your sudo password to install latest version."
+        if sudo make install; then
+          echo -e "The update was successfully installed."
+          cd .. && rm -rf "mkgitignore-$TARGET_RELEASE"
+          exit 0
+        else
+          echo -e "The update can't be installed."
+          cd .. && rm -rf "mkgitignore-$TARGET_RELEASE"
+          exit 3
+        fi
+    )
+  fi
 }
 
 function usage() {
@@ -67,6 +111,7 @@ Options can be:
 \t-d,\t--default\t\t\tCreate a default .gitignore (see manpage).
 \t\t--display-default\t\tDisplay default value.
 \t\t--help\t\t\t\tDisplay this help and exit.
+\t\t--upgrade\t\t\tUpgrade this app.
 \t\t--list\t\t\t\tDisplay a full list of valid keywords.
 \t\t--version\t\t\tOutput version information and exit.
 
@@ -76,79 +121,120 @@ But if a wrong keyword is found no file will be created (and if an original
 
 Examples:
 \tmkgitignore --keywords vim,ruby\t\tCreate a .gitignore with \"vim,ruby\" keywords.
+\tmkgitignore --default -k vim,ruby\tCreate a .gitignore with \"vim,ruby\" and all default keywords.
 \tmkgitignore --list\t\t\tDisplay a full list of valid keywords.
+\tmkgitignore --list v*\t\t\tDisplay a full list of valid keywords which start with \"v\" character.
+\tmkgitignore --upgrade\t\t\tUpgrade to latest version
+\tmkgitignore --upgrade 0.0.1\t\tInstall target version
 
 Version: $VERSION
 
-$COPYRIGHT
+Copyright (C) 2019 Stephane FEUGA OSHIMA.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Written by Stephane FEUGA OSHIMA <sfeuga@member.fsf.org>.
 "
 
   echo -e "$HELP"
 }
 
-initial_setup
 
 if [[ "$#" -eq "0" ]]; then
   usage
   exit 1
-fi
+else
+  initial_setup
 
-while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do
-  case $1 in
-    # TODO Implement an --upgrade option to update this script and the manual
-    -k | --keywords )
-      existing_gitignore
-      if [[ "$3" == "-d" ]] || [[ "$3" == "--default" ]]; then
-        curl -sL https://www.gitignore.io/api/"$KEYWORDS,$2" > .gitignore
-      else
-        curl -sL https://www.gitignore.io/api/"$2" > .gitignore
-      fi
-      exit 0
-      ;;
-    -d | --default )
-      existing_gitignore
-      if [[ "$2" == "-k" ]] || [[ "$2" == "--keywords" ]]; then
-        curl -sL https://www.gitignore.io/api/"$KEYWORDS,$3" > .gitignore
-      else
-        curl -sL https://www.gitignore.io/api/"$KEYWORDS" > .gitignore
-      fi
-      exit 0
-      ;;
-    --list )
-      curl -sL https://www.gitignore.io/api/list | tr '\n' ',' | sed 's/,/, /g'
-      echo ''
-      exit 0
-      ;;
-    --display-default )
-      echo "Default values are: $KEYWORDS"
-      ;;
-    --version )
-      echo -e "mkGitignore version $VERSION"
-      ;;
-    --help )
-      usage
-      exit 0
-      ;;
-    * )
-      echo "$1 was not a valid options. Use \"mkgitignore --help\" or \"man mkgitignore\" to get all valid options."
-      exit 1
-      ;;
-  esac; shift;
-done
-
-# Check if there are errors in .gitignore
-if [[ -f .gitignore ]]; then
-  if [[ "$(grep '#!! ERROR' -c .gitignore)" -ne "0" ]]; then
-    if [[ -f .gitignore.bak ]]; then
-      check_errors_msg
-      mv .gitignore.bak .gitignore
-      exit 2
-    else
-      check_errors_msg
-      rm .gitignore
-      exit 2
-    fi
-  else
-    exit 0
-  fi
+  while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do
+    case $1 in
+      -k | --keywords )
+        if [[ -z "$2" ]] || [[ "$2" =~ ^- ]]; then
+          echo -e "Please, provide at least one keyword."
+          exit 2
+        fi
+        existing_gitignore
+        if [[ "$3" == "-d" ]] || [[ "$3" == "--default" ]]; then
+          curl -sL "$API/$KEYWORDS,$2" > .gitignore
+        else
+          curl -sL "$API/$2" > .gitignore
+        fi
+        check_errors
+        exit 0
+        ;;
+      -d | --default )
+        existing_gitignore
+        if [[ "$2" == "-k" ]] || [[ "$2" == "--keywords" ]]; then
+          if [[ -z "$3" ]] || [[ "$3" =~ ^- ]]; then
+            echo -e "Please, provide at least one keyword."
+            exit 2
+          fi
+          curl -sL "$API/$KEYWORDS,$3" > .gitignore
+        else
+          curl -sL "$API/$KEYWORDS" > .gitignore
+        fi
+        check_errors
+        exit 0
+        ;;
+      --list )
+          if [[ -n "$3" ]] || [[ ! "$3" =~ ^- ]]; then
+            if [[ "$2" =~ \*$ ]]; then
+              pattern=$(echo "$2" | rev | cut -c 2- | rev)
+            else
+              pattern="$2"
+            fi
+            curl -sL "$API/list" | tr '\n' ',' | tr ',' '\n' | grep "^$pattern" | tr '\n' ',' | sed 's/,/, /g'
+          else
+            curl -sL "$API/list" | tr '\n' ',' | sed 's/,/, /g'
+          fi
+        echo ''
+        exit 0
+        ;;
+      --upgrade )
+        current_version="$(mkgitignore --version | sed 's/mkGitignore version //')"
+        if [[ "$#" -eq 2 ]]; then
+          if [[ "$2" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            if [[ "$2" == "$current_version" ]];then
+              no_update_available
+            fi
+            if [[ "$(curl -s $URL/releases/tag/"$2")" != "Not Found" ]];then
+              TARGET_RELEASE="$2"
+              upgrade
+              exit 0
+            else
+              echo -e "Version $2 was not found."
+              exit 3
+            fi
+          else
+            echo -e "Please provide a valid version number like in \"1.2.3\"."
+            exit 3
+          fi
+        else
+          TARGET_RELEASE="$(curl -s $URL/releases/latest | grep -o -E "tag/.*\"" | sed 's|tag/||' | sed 's/"//')"
+          if [[ "$TARGET_RELEASE" == "$current_version" ]]; then
+            no_update_available
+          else
+            upgrade
+            exit 0
+          fi
+        fi
+        ;;
+      --display-default )
+        KEYWORDS=$(echo $KEYWORDS | tr ',' '\n' | sort -u | tr '\n' ',' | rev | cut -c 2- | rev )
+        echo "Default values are: $KEYWORDS"
+        ;;
+      --version )
+        echo -e "mkGitignore version $VERSION"
+        ;;
+      --help )
+        usage
+        exit 0
+        ;;
+      * )
+        echo -e "$1 was not a valid options. Use \"mkgitignore --help\" or \"man mkgitignore\" to get all valid options."
+        exit 1
+        ;;
+    esac; shift;
+  done
 fi

@@ -7,7 +7,7 @@ __This is not an official tool from gitignore.io__
 
 ## How to use
 
-Run `mkgitignore vim,ruby` in your terminal to create a `.gitignore` file setup for vim and ruby.
+Run `mkgitignore --keywords vim,ruby` in your terminal to create a `.gitignore` file setup for vim and ruby.
 
 Run `mkgitignore --help` to get some help. To read more informations, run `man mkgitignore`.
 
@@ -19,10 +19,14 @@ __Requirements:__
 - [curl](https://curl.haxx.se)
 - [GNU troff (groff)](https://www.gnu.org/software/groff/)
 
-Run `sudo make install` and source your `source ~/.{ba,z}shrc` to get completion.
+1. Download [latest](https://github.com/sfeuga/mkgitignore/releases/latest) version or clone this repo
+2. Run `sudo make install` from the downloaded and extracted folder
+3. Run `source ~/.{ba,z}shrc` to get completion.
+3. Optional: To install the [cheat file](https://github.com/cheat/cheat) run `curl -sFLo $HOME/.cheat/mkgitignore --create-dirs https://raw.githubusercontent.com/sfeuga/mkgitignore/master/mkgitignore.cheat`
 
 You can also setup a git alias to create a default `.gitignore` with `git config --global alias.mkg '!mkgitignore -d'`
-and then type `git mkg` to generate your `.gitignore`.
+and then type `git mkg` to generate your default `.gitignore` or type `git mkg -k ruby` to use "default" and "ruby"
+keywords.
 
 Run `mkgitignore --display-default` to see which default values are set and see `man mkgitignore` to create a
 `.mkgitignorerc` file to override default values.

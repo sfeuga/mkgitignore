@@ -27,6 +27,7 @@ _mkgitignore() {
     --help'[Display help]'
     {-k,--keywords}'[Create a .gitignore via keywords]: :->kw'
     --list'[Display full list off keywords]'
+    --upgrade'[Upgrade to latest version]'
     --version'[Display version]'
   )
 
