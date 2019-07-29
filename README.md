@@ -19,10 +19,9 @@ __Requirements:__
 - [curl](https://curl.haxx.se)
 - [GNU troff (groff)](https://www.gnu.org/software/groff/)
 
-1. Download [latest](https://github.com/sfeuga/mkgitignore/releases/latest) version or clone this repo
-2. Run `sudo make install` from the downloaded and extracted folder
-3. Open a new shell or run `source ~/.{ba,z}shrc` to get completion.
-4. Optional: To install the [cheat file](https://github.com/cheat/cheat) run `curl -sFLo $HOME/.cheat/mkgitignore --create-dirs https://raw.githubusercontent.com/sfeuga/mkgitignore/master/mkgitignore.cheat`
+1. Run `curl -sSL https://raw.githubusercontent.com/sfeuga/mkgitignore/master/install.sh | bash`.
+2. Open a new shell or source your `source ~/.bashrc` or `source ~/.zshrc` according to your shell and enjoy.
+3. Optional: To install the [cheat file](https://github.com/cheat/cheat) run `curl -sFLo $HOME/.cheat/mkgitignore --create-dirs https://raw.githubusercontent.com/sfeuga/mkgitignore/master/mkgitignore.cheat`.
 
 You can also setup a git alias to create a default `.gitignore` with `git config --global alias.mkg '!mkgitignore -d'`
 and then type `git mkg` to generate your default `.gitignore` or type `git mkg -k ruby` to use "default" and "ruby"

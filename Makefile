@@ -11,24 +11,26 @@ all:
 	@echo Run \'sudo make install\' to install mkGitignore.
 
 install:
-	install -m755 -d $(BINDIR)
-	install -m755 -d $(BASHCOMDIR)
-	install -m755 -d $(ZSHCOMPDIR)
-	install -m755 -d $(MANDIR)
-	install -m755 -d $(DOCDIR)
-	gzip -c mkgitignore.1 > mkgitignore.1.gz
-	groff -t -mandoc -Tascii mkgitignore.1 > MANUAL
-	install -m755 mkgitignore $(BINDIR)/mkgitignore
-	install -m644 mkgitignore.bash $(BASHCOMDIR)/mkgitignore
-	install -m644 mkgitignore.zsh $(ZSHCOMPDIR)/_mkgitignore
-	install -m644 mkgitignore.1.gz $(MANDIR)
-	install -m644 README.md $(DOCDIR)
-	install -m644 MANUAL $(DOCDIR)
-	rm -f mkgitignore.1.gz MANUAL
+	@install -m755 -d $(BINDIR)
+	@install -m755 -d $(BASHCOMDIR)
+	@install -m755 -d $(ZSHCOMPDIR)
+	@install -m755 -d $(MANDIR)
+	@install -m755 -d $(DOCDIR)
+	@gzip -c mkgitignore.1 > mkgitignore.1.gz
+	@groff -t -mandoc -Tascii mkgitignore.1 > MANUAL
+	@install -m755 mkgitignore $(BINDIR)/mkgitignore
+	@install -m644 mkgitignore.bash $(BASHCOMDIR)/mkgitignore
+	@install -m644 mkgitignore.zsh $(ZSHCOMPDIR)/_mkgitignore
+	@install -m644 mkgitignore.1.gz $(MANDIR)
+	@install -m644 README.md $(DOCDIR)
+	@install -m644 MANUAL $(DOCDIR)
+	@rm -f mkgitignore.1.gz MANUAL
+	@echo "Install done."
 
 uninstall:
-	rm -f $(BINDIR)/mkgitignore
-	rm -f $(BASHCOMDIR)/mkgitignore
-	rm -f $(ZSHCOMPDIR)/_mkgitignore
-	rm -f $(MANDIR)/mkgitignore.1.gz
-	rm -rf $(DOCDIR)
+	@rm -f $(BINDIR)/mkgitignore
+	@rm -f $(BASHCOMDIR)/mkgitignore
+	@rm -f $(ZSHCOMPDIR)/_mkgitignore
+	@rm -f $(MANDIR)/mkgitignore.1.gz
+	@rm -rf $(DOCDIR)
+	@echo "Uninstall done."
