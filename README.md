@@ -37,6 +37,10 @@ Please use the GitHub issue tracker for any bugs or feature suggestions:
 
 <https://github.com/sfeuga/mkgitignore/issues>
 
+## TODO
+
+- [ ] Add automated test ([bats](https://github.com/sstephenson/bats) ?)
+- [ ] Add an option to create a `.mkgitignorerc`. Ex: `mkgitignore -E -k vim,ruby,linux` will run `echo "keywords='vim,ruby,linux'" > ~/.mkgitignorerc`
 
 ## Contributing
 
