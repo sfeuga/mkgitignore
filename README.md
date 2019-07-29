@@ -24,8 +24,8 @@ Run `sudo make install` and source your `source ~/.{ba,z}shrc` to get completion
 You can also setup a git alias to create a default `.gitignore` with `git config --global alias.mkg '!mkgitignore -d'`
 and then type `git mkg` to generate your `.gitignore`.
 
-Run `mkgitignore -D` to see which default values are set and see `man mkgitignore` to create a `.mkgitignorerc` file to
-override default values.
+Run `mkgitignore --display-default` to see which default values are set and see `man mkgitignore` to create a
+`.mkgitignorerc` file to override default values.
 
 ## Reporting bugs
 

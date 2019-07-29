@@ -1,6 +1,7 @@
 PREFIX ?= /usr/local
 BINDIR ?= $(DESTDIR)$(PREFIX)/bin
-COMDIR ?= $(DESTDIR)/etc/bash_completion.d
+BASHCOMDIR ?= $(DESTDIR)/etc/bash_completion.d
+ZSHCOMPDIR ?= $(DESTDIR)/usr/share/zsh/site-functions
 MANDIR ?= $(DESTDIR)$(PREFIX)/share/man/man1
 DOCDIR ?= $(DESTDIR)$(PREFIX)/share/doc/mkgitignore
 
@@ -11,13 +12,15 @@ all:
 
 install:
 	install -m755 -d $(BINDIR)
-	install -m755 -d $(COMDIR)
+	install -m755 -d $(BASHCOMDIR)
+	install -m755 -d $(ZSHCOMPDIR)
 	install -m755 -d $(MANDIR)
 	install -m755 -d $(DOCDIR)
 	gzip -c mkgitignore.1 > mkgitignore.1.gz
 	groff -t -mandoc -Tascii mkgitignore.1 > MANUAL
 	install -m755 mkgitignore $(BINDIR)/mkgitignore
-	install -m644 mkgitignore-completion $(COMDIR)
+	install -m644 mkgitignore.bash $(BASHCOMDIR)
+	install -m644 _mkgitignore.zsh $(ZSHCOMPDIR)/_mkgitignore
 	install -m644 mkgitignore.1.gz $(MANDIR)
 	install -m644 README.md $(DOCDIR)
 	install -m644 MANUAL $(DOCDIR)
@@ -25,6 +28,7 @@ install:
 
 uninstall:
 	rm -f $(BINDIR)/mkgitignore
-	rm -f $(COMDIR)/mkgitignore-completion
+	rm -f $(BASHCOMDIR)/mkgitignore.bash
+	rm -f $(ZSHCOMPDIR)/_mkgitignore
 	rm -f $(MANDIR)/mkgitignore.1.gz
 	rm -rf $(DOCDIR)

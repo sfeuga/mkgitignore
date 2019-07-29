@@ -18,22 +18,21 @@
 #
 # Written by Stephane FEUGA OSHIMA <sfeuga@member.fsf.org>
 
-# TODO create an offline version
 _mkGitignore_completions() {
   local keyword_list options cur prev
   _init_completion -s || return
 
-  keyword_list="$(mkgitignore --list | tr ',' ' ')"
   options='--keywords --default --display-default --list --help --version'
 
   case "$prev" in
-    --keywords | -k)
+    --keywords | -k )
       local prefix=; [[ $cur == *,* ]] && prefix="${cur%,*},"
+      keyword_list="$(mkgitignore --list | tr ',' ' ')"
       mapfile -t COMPREPLY < <(compgen -W "$keyword_list" -- "${cur##*,}")
       [[ ${#COMPREPLY[@]} -eq 1 ]] && COMPREPLY=( "${COMPREPLY/#/$prefix}" )
       return
       ;;
-    *)
+    * )
       mapfile -t COMPREPLY < <(compgen -W "$options" -- "${COMP_WORDS[-1]}")
       return
       ;;

@@ -18,31 +18,43 @@
 #
 # Written by Stephane FEUGA OSHIMA <sfeuga@member.fsf.org>
 
-VERSION="0.0.1"
+VERSION="0.0.2"
+
+COPYRIGHT="Copyright (C) 2019 Stephane FEUGA OSHIMA.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Written by Stephane FEUGA OSHIMA <sfeuga@member.fsf.org>."
+
+function existing_gitignore() {
+  if [[ -f .gitignore ]]; then
+    mv .gitignore .gitignore.bak
+  fi
+}
 
 function check_errors_msg() {
   grep --color=never '#!! ERROR' .gitignore
-
   echo -e "Run \"mkgitignore --list\" command or use the <tab> completion to get a valid list of arguments."
 }
 
 function initial_setup() {
   if [[ -f "$HOME/.mkgitignorerc" ]]; then
-    GITIGNORE_KEYWORDS=''
-    gitignore_keywords=''
+    KEYWORDS=''
+    keywords=''
 
     # shellcheck source=/dev/null
     . "$HOME/.mkgitignorerc"
-    # If $gitignore_systems, $gitignore_editors or $gitignore_cvs are set in
-    #   the .mkgitignorerc file assign their values to UPPERCASE var
-    if [[ -n "$gitignore_keywords" ]];then
-      GITIGNORE_KEYWORDS=$gitignore_keywords
+    # If $gitignore_keywords is set in the .mkgitignorerc file
+    #   assign values to UPPERCASE var
+    if [[ -n "$keywords" ]];then
+      KEYWORDS=$keywords
     fi
   fi
 
   # If UPPERCASE vars are empty, use default values
-  if [[ -z "$GITIGNORE_KEYWORDS" ]]; then
-    GITIGNORE_KEYWORDS='linux,macos,windows,vim,emacs,sublimetext,git'
+  if [[ -z "$KEYWORDS" ]]; then
+    KEYWORDS='linux,macos,windows,vim,emacs,sublimetext,git'
   fi
 }
 
@@ -51,9 +63,9 @@ function usage() {
 Create a \".gitignore\" in the current directory.
 
 Options can be:
-\t-k,\t--keywords\t\t\tOne or more valid keyword.
+\t-k,\t--keywords\t\t\tOne or more valid keyword (<TAB> completion available).
 \t-d,\t--default\t\t\tCreate a default .gitignore (see manpage).
-\t-D,\t--display-default\t\tDisplay default value.
+\t\t--display-default\t\tDisplay default value.
 \t\t--help\t\t\t\tDisplay this help and exit.
 \t\t--list\t\t\t\tDisplay a full list of valid keywords.
 \t\t--version\t\t\tOutput version information and exit.
@@ -66,57 +78,66 @@ Examples:
 \tmkgitignore --keywords vim,ruby\t\tCreate a .gitignore with \"vim,ruby\" keywords.
 \tmkgitignore --list\t\t\tDisplay a full list of valid keywords.
 
-Copyright (C) 2019 Stephane FEUGA OSHIMA.
 Version: $VERSION
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-Written by Stephane FEUGA OSHIMA <sfeuga@member.fsf.org>."
+
+$COPYRIGHT
+"
 
   echo -e "$HELP"
 }
 
 initial_setup
 
-if [[ "$#" -eq "1" ]]; then # One arg only
-  # TODO Refactor with a case switch and loop over args
-  # TODO Implement an offline version with a cache based on date
-  #   ex: if date >= today-7days try to update the list
-  # TODO Implement an --upgrade option to update this script and the manual
-  if [[ "$1" == "--help" ]]; then
-    usage
-    exit 0
-  elif [[ "$1" == "--version" ]]; then
-    echo -e "mkGitignore version $VERSION"
-    exit 0
-  elif [[ "$1" == '-D' ]] || [[ "$1" == "--display-default" ]]; then
-    echo "Default values are: $GITIGNORE_KEYWORDS"
-  elif [[ "$1" == "--list" ]]; then
-    curl -sL https://www.gitignore.io/api/list | tr '\n' ','
-    echo ''
-    exit 0
-  elif [[ "$1" == '-d' ]] || [[ "$1" == "--default" ]]; then
-    # TODO Implement a "--defaut ruby,python" (two args to overide the default arg)
-    if [[ -f .gitignore ]]; then
-      mv .gitignore .gitignore.bak
-    fi
-    curl -sL https://www.gitignore.io/api/"$GITIGNORE_KEYWORDS" > .gitignore
-  elif [[ "$1" == '-k' ]] || [[ "$1" == "--keywords" ]]; then
-    if [[ -f .gitignore ]]; then
-      mv .gitignore .gitignore.bak
-    fi
-    curl -sL https://www.gitignore.io/api/"$1" > .gitignore
-  else
-    echo "$1 was not a valid options. Use \"$0 --help\" or \"man $0\" to get all valid options."
-  fi
-else
+if [[ "$#" -eq "0" ]]; then
   usage
   exit 1
 fi
 
+while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do
+  case $1 in
+    # TODO Implement an --upgrade option to update this script and the manual
+    -k | --keywords )
+      existing_gitignore
+      if [[ "$3" == "-d" ]] || [[ "$3" == "--default" ]]; then
+        curl -sL https://www.gitignore.io/api/"$KEYWORDS,$2" > .gitignore
+      else
+        curl -sL https://www.gitignore.io/api/"$2" > .gitignore
+      fi
+      exit 0
+      ;;
+    -d | --default )
+      existing_gitignore
+      if [[ "$2" == "-k" ]] || [[ "$2" == "--keywords" ]]; then
+        curl -sL https://www.gitignore.io/api/"$KEYWORDS,$3" > .gitignore
+      else
+        curl -sL https://www.gitignore.io/api/"$KEYWORDS" > .gitignore
+      fi
+      exit 0
+      ;;
+    --list )
+      curl -sL https://www.gitignore.io/api/list | tr '\n' ',' | sed 's/,/, /g'
+      echo ''
+      exit 0
+      ;;
+    --display-default )
+      echo "Default values are: $KEYWORDS"
+      ;;
+    --version )
+      echo -e "mkGitignore version $VERSION"
+      ;;
+    --help )
+      usage
+      exit 0
+      ;;
+    * )
+      echo "$1 was not a valid options. Use \"mkgitignore --help\" or \"man mkgitignore\" to get all valid options."
+      exit 1
+      ;;
+  esac; shift;
+done
+
 # Check if there are errors in .gitignore
 if [[ -f .gitignore ]]; then
-  # TODO change this feature to handle local cache of valid keywords
   if [[ "$(grep '#!! ERROR' -c .gitignore)" -ne "0" ]]; then
     if [[ -f .gitignore.bak ]]; then
       check_errors_msg
