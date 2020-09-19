@@ -22,7 +22,7 @@ _mkGitignore_completions() {
   local keyword_list options cur prev
   _init_completion -s || return
 
-  options='-k --keywords -d --default --display-default --list --upgrade --help --version'
+  options='-k --keywords -d --default --display-default --list --upgrade -h --help --version'
 
   case "$prev" in
     --keywords | -k )

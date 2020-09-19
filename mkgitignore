@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright (C) 2019 Stephane FEUGA OSHIMA
+# Copyright (C) 2020 Stephane FEUGA OSHIMA
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,8 +20,15 @@
 
 URL="https://github.com/sfeuga/mkgitignore"
 API="https://www.gitignore.io/api"
+TEMPLATES="/usr/local/share/applications/mkgitignore/templates"
 
-VERSION="0.0.4"
+VERSION="0.0.5"
+
+if [[ -d "$TEMPLATES" ]]; then
+  LOCAL="true"
+else
+  LOCAL=''
+fi
 
 function check_errors() {
   if [[ -f .gitignore ]]; then
@@ -107,12 +114,12 @@ function usage() {
 Create a \".gitignore\" in the current directory.
 
 Options can be:
-\t-k,\t--keywords\t\t\tOne or more valid keyword (<TAB> completion available).
 \t-d,\t--default\t\t\tCreate a default .gitignore (see manpage).
 \t\t--display-default\t\tDisplay default value.
-\t\t--help\t\t\t\tDisplay this help and exit.
-\t\t--upgrade\t\t\tUpgrade this app.
+\t-h,\t--help\t\t\t\tDisplay this help and exit.
+\t-k,\t--keywords\t\t\tOne or more valid keyword (<TAB> completion available).
 \t\t--list\t\t\t\tDisplay a full list of valid keywords.
+\t\t--upgrade\t\t\tUpgrade this app.
 \t\t--version\t\t\tOutput version information and exit.
 
 If a .gitignore already exist it will saved and a new one will be create.
@@ -129,7 +136,7 @@ Examples:
 
 Version: $VERSION
 
-Copyright (C) 2019 Stephane FEUGA OSHIMA.
+Copyright (C) 2020 Stephane FEUGA OSHIMA.
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
@@ -156,9 +163,19 @@ else
         fi
         existing_gitignore
         if [[ "$3" == "-d" ]] || [[ "$3" == "--default" ]]; then
-          curl -sL "$API/$KEYWORDS,$2" > .gitignore
+          if [[ -n "$LOCAL" ]]; then
+            template_list=$(echo "$KEYWORDS,$2" | sed "s/,/ /g")
+            sort -u $(echo $template_list)
+          else
+            curl -sL "$API/$KEYWORDS,$2" > .gitignore
+          fi
         else
-          curl -sL "$API/$2" > .gitignore
+          if [[ -n "$LOCAL" ]]; then
+            template_list=$(echo "$2" | sed "s/,/ /g")
+            sort -u $(echo $template_list)
+          else
+            curl -sL "$API/$2" > .gitignore
+          fi
         fi
         check_errors
         exit 0
@@ -170,9 +187,19 @@ else
             echo -e "Please, provide at least one keyword."
             exit 2
           fi
-          curl -sL "$API/$KEYWORDS,$3" > .gitignore
+          if [[ -n "$LOCAL" ]]; then
+            template_list=$(echo "$KEYWORDS,$3" | sed "s/,/ /g")
+            cat $(echo $template_list)
+          else
+            curl -sL "$API/$KEYWORDS,$3" > .gitignore
+          fi
         else
-          curl -sL "$API/$KEYWORDS" > .gitignore
+          if [[ -n "$LOCAL" ]]; then
+            template_list=$(echo "$KEYWORDS" | sed "s/,/ /g")
+            cat $(echo $template_list)
+          else
+            curl -sL "$API/$KEYWORDS" > .gitignore
+          fi
         fi
         check_errors
         exit 0
@@ -184,9 +211,25 @@ else
             else
               pattern="$2"
             fi
-            curl -sL "$API/list" | tr '\n' ',' | tr ',' '\n' | grep "^$pattern" | tr '\n' ',' | sed 's/,/, /g'
+            if [[ -n "$LOCAL" ]]; then
+              for template in $TEMPLATES/$pattern*; do
+                printf "$template, " >> /tmp/template_list
+              done
+              cat /tmp/template_list | sed 's|/usr/local/share/applications/mkgitignore/templates/||g' | sed 's/, $//'
+              rm -f /tmp/template_list
+            else
+              curl -sL "$API/list" | tr '\n' ',' | tr ',' '\n' | grep "^$pattern" | tr '\n' ',' | sed 's/,/, /g' | sed 's/, $//'
+            fi
           else
-            curl -sL "$API/list" | tr '\n' ',' | sed 's/,/, /g'
+            if [[ -n "$LOCAL" ]]; then
+              for template in $TEMPLATES/*; do
+                printf "$template, " >> /tmp/template_list
+              done
+              cat /tmp/template_list | sed 's/, $/\n/'
+              rm -f /tmp/template_list
+            else
+              curl -sL "$API/list" | tr '\n' ',' | sed 's/,/, /g' | sed 's/, $//'
+            fi
           fi
         echo ''
         exit 0
@@ -227,7 +270,7 @@ else
       --version )
         echo -e "mkGitignore version $VERSION"
         ;;
-      --help )
+      --help | -h )
         usage
         exit 0
         ;;

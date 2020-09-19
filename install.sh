@@ -11,7 +11,7 @@ RELEASE="$(curl -s $URL/releases/latest | grep -o -E "tag/.*\"" | sed 's|tag/||'
     cd "mkgitignore-$RELEASE" || exit 3
     echo -e "You will need to type your sudo password to install latest version."
     if sudo make install; then
-      echo -e "mkGitignore was uccessfully installed."
+      echo -e "mkGitignore was successfully installed (with local templates)."
       cd .. && rm -rf "mkgitignore-$RELEASE"
       exit 0
     else

@@ -24,7 +24,7 @@ _mkgitignore() {
   args+=(
     {-d,--default}'[Create a default .gitignore]'
     --display-default'[Display default values]'
-    --help'[Display help]'
+    {-h,--help}'[Display help]'
     {-k,--keywords}'[Create a .gitignore via keywords]: :->kw'
     --list'[Display full list off keywords]'
     --upgrade'[Upgrade to latest version]'

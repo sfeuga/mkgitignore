@@ -4,6 +4,7 @@ BASHCOMDIR ?= $(DESTDIR)/etc/bash_completion.d
 ZSHCOMPDIR ?= $(DESTDIR)/usr/share/zsh/site-functions
 MANDIR ?= $(DESTDIR)$(PREFIX)/share/man/man1
 DOCDIR ?= $(DESTDIR)$(PREFIX)/share/doc/mkgitignore
+LOCALTEMPLATE ?= $(DESTDIR)$(PREFIX)/share/applications/mkgitignore
 
 .PHONY: all install uninstall
 
@@ -16,6 +17,7 @@ install:
 	@install -m755 -d $(ZSHCOMPDIR)
 	@install -m755 -d $(MANDIR)
 	@install -m755 -d $(DOCDIR)
+	@install -m755 -d $(LOCALTEMPLATE)
 	@gzip -c mkgitignore.1 > mkgitignore.1.gz
 	@groff -t -mandoc -Tascii mkgitignore.1 > MANUAL
 	@install -m755 mkgitignore $(BINDIR)/mkgitignore
@@ -24,6 +26,7 @@ install:
 	@install -m644 mkgitignore.1.gz $(MANDIR)
 	@install -m644 README.md $(DOCDIR)
 	@install -m644 MANUAL $(DOCDIR)
+	@unzip -q -d $(LOCALTEMPLATE) templates.zip
 	@rm -f mkgitignore.1.gz MANUAL
 	@echo "Install done."
 
@@ -33,4 +36,5 @@ uninstall:
 	@rm -f $(ZSHCOMPDIR)/_mkgitignore
 	@rm -f $(MANDIR)/mkgitignore.1.gz
 	@rm -rf $(DOCDIR)
+	@rm -rf $(LOCALTEMPLATE)
 	@echo "Uninstall done."
